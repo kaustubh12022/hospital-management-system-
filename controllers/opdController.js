@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Patient from '../models/Patient.js';
 import Visit from '../models/Visit.js';
+import moment from 'moment-timezone';
 
 // @desc    Register a patient (new or existing) and assign a daily token
 // @route   POST /api/opd/register
@@ -24,12 +25,9 @@ export const registerPatient = async (req, res) => {
         }
 
         // 2. Token Generation Logic
-        // Define 'today' boundaries
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+        // Define 'today' boundaries locked to hospital timezone
+        const startOfDay = moment.tz('Asia/Kolkata').startOf('day').toDate();
+        const endOfDay = moment.tz('Asia/Kolkata').endOf('day').toDate();
 
         // Find the highest token number for today
         const latestVisit = await Visit.findOne({
@@ -80,11 +78,8 @@ export const registerPatient = async (req, res) => {
 // @access  Private/OPD
 export const getQueue = async (req, res) => {
     try {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+        const startOfDay = moment.tz('Asia/Kolkata').startOf('day').toDate();
+        const endOfDay = moment.tz('Asia/Kolkata').endOf('day').toDate();
 
         const visits = await Visit.find({
             createdAt: { $gte: startOfDay, $lte: endOfDay },

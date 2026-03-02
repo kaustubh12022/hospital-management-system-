@@ -1,17 +1,15 @@
 import mongoose from 'mongoose';
 import Visit from '../models/Visit.js';
 import Patient from '../models/Patient.js';
+import moment from 'moment-timezone';
 
 // @desc    Get all active patients sent to the doctor for today
 // @route   GET /api/doctor/queue
 // @access  Private/Doctor
 export const getQueue = async (req, res) => {
     try {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
+        const startOfDay = moment.tz('Asia/Kolkata').startOf('day').toDate();
+        const endOfDay = moment.tz('Asia/Kolkata').endOf('day').toDate();
 
         const visits = await Visit.find({
             status: 'sent_to_doctor',
