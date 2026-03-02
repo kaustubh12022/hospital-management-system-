@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Patient from '../models/Patient.js';
 import Visit from '../models/Visit.js';
 import moment from 'moment-timezone';
+import { getIO } from '../socket.js';
 
 // @desc    Register a patient (new or existing) and assign a daily token
 // @route   POST /api/opd/register
@@ -129,6 +130,11 @@ export const sendToDoctor = async (req, res) => {
 
         visit.status = 'sent_to_doctor';
         await visit.save();
+
+        getIO().to('doctor_room').emit('visit_update', {
+            visitId: visit._id,
+            eventType: 'new_patient'
+        });
 
         res.json({
             _id: visit._id,

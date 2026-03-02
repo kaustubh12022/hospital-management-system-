@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import http from 'http';
+import { initSocket } from './socket.js';
 import connectDB from './config/db.js';
 
 // Load environment variables
@@ -17,6 +19,12 @@ import pharmacyRoutes from './routes/pharmacyRoutes.js';
 import ipdRoutes from './routes/ipdRoutes.js';
 
 const app = express();
+
+// 1. Create native Node HTTP Server mapping to Express
+const httpServer = http.createServer(app);
+
+// 2. Attach and initialize Socket.io
+initSocket(httpServer);
 
 // Middleware
 app.use(cors());
@@ -36,6 +44,7 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+// 3. Listen completely on httpServer to dual-host endpoints & web sockets
+httpServer.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });

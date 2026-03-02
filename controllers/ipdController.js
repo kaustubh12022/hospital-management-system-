@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Visit from '../models/Visit.js';
 import moment from 'moment-timezone';
+import { getIO } from '../socket.js';
 
 export const getQueue = async (req, res) => {
     try {
@@ -55,6 +56,11 @@ export const completeIPD = async (req, res) => {
         }
 
         await visit.save();
+
+        getIO().to('doctor_room').emit('visit_update', {
+            visitId: visit._id,
+            eventType: 'ipd_completed'
+        });
 
         res.json({
             message: 'IPD processing completed successfully',

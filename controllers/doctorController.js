@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Visit from '../models/Visit.js';
 import Patient from '../models/Patient.js';
 import moment from 'moment-timezone';
+import { getIO } from '../socket.js';
 
 // @desc    Get all active patients sent to the doctor for today
 // @route   GET /api/doctor/queue
@@ -150,6 +151,21 @@ export const completeConsultation = async (req, res) => {
             });
 
             await patient.save();
+        }
+
+        // 7. Fire Live Pings to Route Destinations purely based on final flags
+        if (visit.pharmacyStatus === 'pending') {
+            getIO().to('pharmacy_room').emit('visit_update', {
+                visitId: visit._id,
+                eventType: 'pharmacy_new_visit'
+            });
+        }
+
+        if (visit.ipdStatus === 'pending') {
+            getIO().to('ipd_room').emit('visit_update', {
+                visitId: visit._id,
+                eventType: 'ipd_new_visit'
+            });
         }
 
         res.json({
