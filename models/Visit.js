@@ -10,15 +10,18 @@ const visitSchema = new mongoose.Schema(
         tokenNumber: {
             type: String,
             required: true,
+            index: true,
         },
         visitDate: {
             type: Date,
             default: Date.now,
+            index: true,
         },
         status: {
             type: String,
             enum: ['waiting', 'sent_to_doctor', 'completed'],
             default: 'waiting',
+            index: true,
         },
     },
     {

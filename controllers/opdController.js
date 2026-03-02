@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Patient from '../models/Patient.js';
 import Visit from '../models/Visit.js';
 
@@ -111,10 +112,24 @@ export const getQueue = async (req, res) => {
 // @access  Private/OPD
 export const sendToDoctor = async (req, res) => {
     try {
-        const visit = await Visit.findById(req.params.visitId);
+        const { visitId } = req.params;
+
+        // 1. Validate Mongo ID to prevent cast errors
+        if (!mongoose.Types.ObjectId.isValid(visitId)) {
+            return res.status(400).json({ message: 'Invalid Visit ID format' });
+        }
+
+        const visit = await Visit.findById(visitId);
 
         if (!visit) {
             return res.status(404).json({ message: 'Visit not found' });
+        }
+
+        // 2. Strict State Control
+        if (visit.status !== 'waiting') {
+            return res.status(400).json({
+                message: `Cannot send. Visit is currently marked as '${visit.status}'. Only 'waiting' visits can be sent.`
+            });
         }
 
         visit.status = 'sent_to_doctor';
@@ -128,6 +143,6 @@ export const sendToDoctor = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Server error while sending patient' });
     }
 };
