@@ -23,6 +23,27 @@ const visitSchema = new mongoose.Schema(
             default: 'waiting',
             index: true,
         },
+        medicines: [
+            {
+                medicineName: { type: String, required: true },
+                dosage: { type: String, required: true },
+                frequency: { type: String, required: true },
+                duration: { type: String, required: true },
+            },
+        ],
+        note: {
+            type: String,
+        },
+        billingStatus: {
+            type: String,
+            enum: ['paid', 'credit'],
+        },
+        amount: {
+            type: Number,
+        },
+        consultationCompletedAt: {
+            type: Date,
+        },
     },
     {
         timestamps: true,
