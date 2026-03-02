@@ -13,6 +13,8 @@ import authRoutes from './routes/authRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import opdRoutes from './routes/opdRoutes.js';
 import doctorRoutes from './routes/doctorRoutes.js';
+import pharmacyRoutes from './routes/pharmacyRoutes.js';
+import ipdRoutes from './routes/ipdRoutes.js';
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/opd', opdRoutes);
 app.use('/api/doctor', doctorRoutes);
+app.use('/api/pharmacy', pharmacyRoutes);
+app.use('/api/ipd', ipdRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');

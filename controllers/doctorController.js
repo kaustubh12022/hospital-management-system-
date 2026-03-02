@@ -58,7 +58,14 @@ export const getVisitDetails = async (req, res) => {
 export const completeConsultation = async (req, res) => {
     try {
         const { visitId } = req.params;
-        const { medicines, note, billingStatus, amount } = req.body;
+        const {
+            medicines,
+            note,
+            billingStatus,
+            amount,
+            sendToPharmacy,
+            sendToIPD,
+        } = req.body;
 
         // 1. Initial Validation
         if (!mongoose.Types.ObjectId.isValid(visitId)) {
@@ -104,11 +111,30 @@ export const completeConsultation = async (req, res) => {
         visit.billingStatus = billingStatus;
         visit.amount = numAmount;
         visit.consultationCompletedAt = new Date();
-        visit.status = 'completed';
+
+        // 4. Routing Logic
+        if (sendToPharmacy === true) {
+            visit.pharmacyStatus = 'pending';
+        } else {
+            visit.pharmacyStatus = 'not_required';
+        }
+
+        if (sendToIPD === true) {
+            visit.ipdStatus = 'pending';
+        } else {
+            visit.ipdStatus = 'not_required';
+        }
+
+        // 5. Determine Global Status
+        if (visit.pharmacyStatus === 'pending' || visit.ipdStatus === 'pending') {
+            visit.status = 'in_progress';
+        } else {
+            visit.status = 'completed';
+        }
 
         await visit.save();
 
-        // 4. Update the Patient Record if "credit"
+        // 6. Update the Patient Record if "credit"
         if (billingStatus === 'credit') {
             const patient = await Patient.findById(visit.patient);
 

@@ -19,7 +19,7 @@ const visitSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['waiting', 'sent_to_doctor', 'completed'],
+            enum: ['waiting', 'sent_to_doctor', 'in_progress', 'completed'],
             default: 'waiting',
             index: true,
         },
@@ -43,6 +43,18 @@ const visitSchema = new mongoose.Schema(
         },
         consultationCompletedAt: {
             type: Date,
+        },
+        pharmacyStatus: {
+            type: String,
+            enum: ['not_required', 'pending', 'completed'],
+            default: 'not_required',
+            index: true,
+        },
+        ipdStatus: {
+            type: String,
+            enum: ['not_required', 'pending', 'completed'],
+            default: 'not_required',
+            index: true,
         },
     },
     {
